@@ -2,6 +2,10 @@ server:
   servlet:
     context-path: /adminsystem
   port: ${PORT:8080}
+  tomcat:
+    max-threads: 50
+    min-spare-threads: 10
+    accept-count: 100
 
 spring:
   datasource:
@@ -11,14 +15,17 @@ spring:
     password: ${DATABASE_PASSWORD}
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
-      initial-size: 5
-      min-idle: 10
-      max-active: 20
-      max-wait: 60000
+      initial-size: 1
+      min-idle: 1
+      max-active: 5
+      max-wait: 30000
       validation-query: SELECT 1
-      test-on-borrow: true
+      test-on-borrow: false
       test-while-idle: true
-      test-on-return: false
+      pool-prepared-statements: false
+
+  jpa:
+    open-in-view: false
 
   mvc:
     pathmatch:
@@ -48,6 +55,9 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   type-aliases-package: com.jiangxijiaoyuan.entity
+  global-config:
+    db-config:
+      logic-delete-field: deleted
 
 sa-token:
   token-name: pdmtoken
@@ -56,14 +66,13 @@ sa-token:
   is-concurrent: true
   is-share: true
   token-style: uuid
-  is-log: true
+  is-log: false
 
 file:
   server:
     dir: /tmp/upload
     path: upload
 
-# 添加日志配置，减少输出
 logging:
   level:
     root: WARN
@@ -71,3 +80,5 @@ logging:
     org.springframework: WARN
     com.baomidou.mybatisplus: WARN
     org.apache.ibatis: WARN
+    org.hibernate: WARN
+    com.zaxxer.hikari: WARN
