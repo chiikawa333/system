@@ -1,12 +1,26 @@
+# 构建阶段
+FROM eclipse-temurin:17-jdk-alpine AS builder
+
+WORKDIR /app
+
+# 安装 Maven
+RUN apk add --no-cache maven
+
+# 复制 Maven 配置文件
+COPY pom.xml .
+COPY src ./src
+
+# 执行 Maven 构建
+RUN mvn clean package -DskipTests
+
+# 运行阶段
 FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# 复制 Maven 构建的 jar 包
-COPY target/*.jar app.jar
+# 复制构建好的 jar 包
+COPY --from=builder /app/target/*.jar app.jar
 
-# 暴露端口
 EXPOSE 8080
 
-# 启动应用
 ENTRYPOINT ["java", "-jar", "app.jar"]
