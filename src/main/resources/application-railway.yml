@@ -62,3 +62,12 @@ file:
   server:
     dir: /tmp/upload
     path: upload
+
+# 添加日志配置，减少输出
+logging:
+  level:
+    root: WARN
+    com.jiangxijiaoyuan: INFO
+    org.springframework: WARN
+    com.baomidou.mybatisplus: WARN
+    org.apache.ibatis: WARN
