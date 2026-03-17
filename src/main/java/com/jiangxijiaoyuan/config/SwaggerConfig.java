@@ -1,20 +1,23 @@
 package com.jiangxijiaoyuan.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.Contact;
 
 @Configuration
 public class SwaggerConfig {
+
     @Bean
-    public OpenAPI customOpenAPI(){
+    public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info((new Info())
-                    .title("智慧校园交易平台")
-                    .version("1.0")
-                    .description("智慧校园交易平台spring boot3 +vue脚手架接口文档")
-                    .contact(new Contact().name("student").url("")));
+                .info(new Info()
+                        .title("Admin System API")
+                        .version("1.0.0")
+                        .description("停车场管理系统 API 文档")
+                        .contact(new Contact()
+                                .name("chiikawa333")
+                                .email("chiikawa333@email.com")));
     }
-    }
+}
