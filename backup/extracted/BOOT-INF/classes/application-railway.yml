@@ -1,0 +1,84 @@
+server:
+  servlet:
+    context-path: /adminsystem
+  port: ${PORT:8080}
+  tomcat:
+    max-threads: 50
+    min-spare-threads: 10
+    accept-count: 100
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 1
+      min-idle: 1
+      max-active: 5
+      max-wait: 30000
+      validation-query: SELECT 1
+      test-on-borrow: false
+      test-while-idle: true
+      pool-prepared-statements: false
+
+  jpa:
+    open-in-view: false
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.jiangxijiaoyuan.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    swagger-model-name: 实体类列表
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  type-aliases-package: com.jiangxijiaoyuan.entity
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+
+sa-token:
+  token-name: pdmtoken
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+
+file:
+  server:
+    dir: /tmp/upload
+    path: upload
+
+logging:
+  level:
+    root: WARN
+    com.jiangxijiaoyuan: INFO
+    org.springframework: WARN
+    com.baomidou.mybatisplus: WARN
+    org.apache.ibatis: WARN
+    org.hibernate: WARN
+    com.zaxxer.hikari: WARN

@@ -1,4 +1,5 @@
 package com.jiangxijiaoyuan.controller;
+
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.jiangxijiaoyuan.exception.BussinessException;
 import com.jiangxijiaoyuan.responce.R;
@@ -10,7 +11,6 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +39,10 @@ public class CommonController {
 
     @Resource
     private CaptchCache captchCache;
+// ... existing code ...
+
+
+// ... existing code ...
 
     @GetMapping("/common/getCaptcha")
         public R<Captcha> getCaptcha(){

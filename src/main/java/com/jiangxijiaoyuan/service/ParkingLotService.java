@@ -31,6 +31,16 @@ public interface ParkingLotService extends IService<ParkingLot> {
     PageInfo<ParkingLot> searchParkingLots(String keyword, Integer pageNum, Integer pageSize);
 
     /**
+     * 综合查询停车场列表
+     * @param keyword 搜索关键词
+     * @param status 状态
+     * @param pageNum 页码
+     * @param pageSize 每页数量
+     * @return 停车场分页数据
+     */
+    PageInfo<ParkingLot> getParkingLots(String keyword, Integer status, Integer pageNum, Integer pageSize);
+
+    /**
      * 初始化模拟数据
      */
     void initMockData();

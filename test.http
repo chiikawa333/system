@@ -1,0 +1,234 @@
+### ==================== 管理员管理模块测试 ====================
+
+# 1. 获取验证码
+POST http://localhost:8080/adminsystem/common/getCaptcha
+Content-Type: application/json
+
+> {%
+    client.global.set("captchaId", response.body.data.captchaId);
+    console.log("验证码 ID: " + captchaId);
+%}
+
+### 2. 管理员登录
+POST http://localhost:8080/adminsystem/admin/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "userpwd": "123456",
+  "captchaId": "{{captchaId}}",
+  "captchaCode": "1234"
+}
+
+> {%
+    if (response.body.code == 200) {
+        client.global.set("token", response.body.data.token);
+        console.log("登录成功，Token: " + token);
+    } else {
+        console.log("登录失败：" + response.body.message);
+    }
+%}
+
+### 3. 新增管理员（需要登录）
+POST http://localhost:8080/adminsystem/admin/add
+Content-Type: application/json
+sa-token: {{token}}
+
+{
+  "username": "testuser001",
+  "userpwd": "password123",
+  "name": "测试用户",
+  "sex": "男",
+  "tel": "13800138000",
+  "headurl": "https://example.com/avatar.jpg"
+}
+
+### 4. 查询管理员列表（需要登录）
+POST http://localhost:8080/adminsystem/admin/list?pageNum=1&pageSize=10
+Content-Type: application/json
+sa-token: {{token}}
+
+{
+  "name": "测试",
+  "tel": "138"
+}
+
+### 5. 修改管理员（需要登录）
+POST http://localhost:8080/adminsystem/admin/update
+Content-Type: application/json
+sa-token: {{token}}
+
+{
+  "id": 1,
+  "username": "admin",
+  "name": "系统管理员",
+  "sex": "男",
+  "tel": "13800138000",
+  "headurl": "https://example.com/new-avatar.jpg"
+}
+
+### 6. 删除管理员（支持批量删除，需要登录）
+POST http://localhost:8080/adminsystem/admin/del?ids=2,3
+Content-Type: application/json
+sa-token: {{token}}
+
+### 7. 管理员登出（需要登录）
+POST http://localhost:8080/adminsystem/admin/loginout
+sa-token: {{token}}
+
+### ==================== 停车场管理模块测试 ====================
+
+### 8. 获取停车场列表（带搜索和分页）
+GET http://localhost:8080/adminsystem/parking/list?keyword=万达&status=1&pageNum=1&pageSize=10
+
+### 9. 获取停车场详情
+GET http://localhost:8080/adminsystem/parking/detail/1
+
+### 10. 创建停车场（需要登录）
+POST http://localhost:8080/adminsystem/parking/add
+Content-Type: application/json
+sa-token: {{token}}
+
+{
+  "name": "新天地停车场",
+  "address": "上海市黄浦区太仓路 181 弄",
+  "latitude": 31.219445,
+  "longitude": 121.475568,
+  "totalSpaces": 300,
+  "availableSpaces": 150,
+  "pricePerHour": 15.00,
+  "openingTime": "00:00:00",
+  "closingTime": "23:59:59",
+  "contactPhone": "021-12345678",
+  "facilities": "充电桩，监控，无障碍",
+  "status": 1,
+  "rating": 4.5,
+  "description": "新天地地下停车场",
+  "imageUrl": "https://example.com/parking.jpg"
+}
+
+### 11. 更新停车场（需要登录）
+POST http://localhost:8080/adminsystem/parking/update
+Content-Type: application/json
+sa-token: {{token}}
+
+{
+  "id": 1,
+  "name": "万达广场停车场（已更新）",
+  "availableSpaces": 200,
+  "pricePerHour": 12.00
+}
+
+### 12. 删除停车场（需要登录）
+DELETE http://localhost:8080/adminsystem/parking/delete/5
+sa-token: {{token}}
+
+### 13. 获取收费标准配置
+GET http://localhost:8080/adminsystem/parking/fee/config?parkingLotId=1
+
+### 14. 更新收费标准配置（需要登录）
+POST http://localhost:8080/adminsystem/parking/fee/config?parkingLotId=1
+Content-Type: application/json
+sa-token: {{token}}
+
+{
+  "pricePerHour": 20.00,
+  "minFee": 10.00,
+  "maxFee": 100.00,
+  "freeMinutes": 30
+}
+
+### 15. 初始化停车场模拟数据
+POST http://localhost:8080/adminsystem/parking/init/mock
+
+### ==================== 车辆轨迹模块测试 ====================
+
+### 16. 保存单个车辆位置
+POST http://localhost:8080/adminsystem/car/trajectory/save
+Content-Type: application/json
+
+{
+  "carId": "A001",
+  "plateNumber": "京 A88888",
+  "vehicleType": 1,
+  "xCoordinate": "100.5",
+  "yCoordinate": "200.3",
+  "interval": "30",
+  "speed": 25.5,
+  "status": 1,
+  "seconds": 120
+}
+
+### 17. 批量保存车辆位置
+POST http://localhost:8080/adminsystem/car/trajectory/save/batch
+Content-Type: application/json
+
+[
+  {
+    "carId": "A001",
+    "plateNumber": "京 A88888",
+    "vehicleType": 1,
+    "xCoordinate": "100.5",
+    "yCoordinate": "200.3",
+    "interval": "30",
+    "speed": 25.5,
+    "status": 1
+  },
+  {
+    "carId": "A002",
+    "plateNumber": "京 B66666",
+    "vehicleType": 1,
+    "xCoordinate": "150.8",
+    "yCoordinate": "250.6",
+    "interval": "45",
+    "speed": 30.2,
+    "status": 1
+  },
+  {
+    "carId": "A003",
+    "plateNumber": "京 C99999",
+    "vehicleType": 2,
+    "xCoordinate": "180.2",
+    "yCoordinate": "280.9",
+    "interval": "60",
+    "speed": 20.0,
+    "status": 0
+  }
+]
+
+### 18. 获取所有车辆轨迹（分页）
+GET http://localhost:8080/adminsystem/car/trajectory/all?pageNum=1&pageSize=10
+
+### 19. 获取指定车辆最新位置
+GET http://localhost:8080/adminsystem/car/trajectory/latest/A001
+
+### 20. 获取车辆历史轨迹（分页）
+GET http://localhost:8080/adminsystem/car/trajectory/history/A001?pageNum=1&pageSize=20
+
+### 21. 获取所有运行中的车辆（需要登录）
+GET http://localhost:8080/adminsystem/car/trajectory/running?pageNum=1&pageSize=10
+sa-token: {{token}}
+
+### ==================== 公共接口测试 ====================
+
+### 22. 上传文件
+POST http://localhost:8080/adminsystem/common/uploadFile
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< D:\test.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ==================== API 文档访问 ====================
+
+### 23. 访问 Knife4j API 文档
+GET http://localhost:8080/adminsystem/doc.html
+
+### 24. 访问 Swagger UI
+GET http://localhost:8080/adminsystem/swagger-ui.html
+
+### 25. 获取 OpenAPI 定义
+GET http://localhost:8080/adminsystem/v3/api-docs

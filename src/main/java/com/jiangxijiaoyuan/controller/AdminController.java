@@ -1,118 +1,3 @@
-//package com.jiangxijiaoyuan.controller;
-//
-//import cn.dev33.satoken.annotation.SaCheckLogin;
-//import cn.dev33.satoken.stp.StpUtil;
-//import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-//import com.github.pagehelper.PageHelper;
-//import com.github.pagehelper.PageInfo;
-//import com.jiangxijiaoyuan.entity.Admin;
-//import com.jiangxijiaoyuan.exception.BussinessException;
-//import com.jiangxijiaoyuan.responce.R;
-//import com.jiangxijiaoyuan.responce.ResponseCode;
-//import com.jiangxijiaoyuan.service.AdminService;
-//import com.jiangxijiaoyuan.util.CaptchCache;
-//import io.swagger.v3.oas.annotations.Operation;
-//import io.swagger.v3.oas.annotations.tags.Tag;
-//import jakarta.annotation.Resource;
-//import org.apache.commons.lang3.StringUtils;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.List;
-//@Tag(name = "管理员信息管理")
-//@RestController
-//public class AdminController {
-//    @Resource
-//    private AdminService adminService;
-//
-//    @Resource
-//    private CaptchCache captchCache;
-//
-//    @Operation(summary = "新增管理员")
-//    @PostMapping("/admin/add")
-//    @CrossOrigin
-//    public R add(@RequestBody Admin admin){
-//        LambdaQueryWrapper<Admin> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        lambdaQueryWrapper.eq(Admin::getUsername,admin.getUsername());
-//        long count = adminService.count(lambdaQueryWrapper);
-//        if (count > 0){
-//            throw new BussinessException(ResponseCode.USERNAME_EXIST);
-//        }
-//
-//
-//        adminService.save(admin);
-//        return R.success();
-//    }
-//
-//    @Operation(summary = "管理员信息列表")
-//    @PostMapping("admin/list")
-//    @CrossOrigin
-//    @SaCheckLogin
-//    public R<PageInfo<Admin>> list(@RequestBody Admin admin,@RequestParam Integer pageNum,@RequestParam Integer pageSize){
-//        LambdaQueryWrapper<Admin> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        lambdaQueryWrapper.like(admin.getName()!=null,Admin::getName,admin.getName());
-//        lambdaQueryWrapper.like(admin.getTel()!=null,Admin::getTel,admin.getTel());
-//        lambdaQueryWrapper.orderByDesc(Admin::getId);
-//
-//        PageHelper.startPage(pageNum,pageSize);
-//        List<Admin> list = adminService.list(lambdaQueryWrapper);
-//        PageInfo<Admin> pageInfo = new PageInfo(list);
-//        return R.data(pageInfo);
-//    }
-//
-//    @Operation(summary = "修改管理员")
-//    @PostMapping("/admin/update")
-//    @CrossOrigin
-//    @SaCheckLogin
-//    public R update(@RequestBody Admin admin){
-//        adminService.updateById(admin);
-//        return R.success();
-//    }
-//
-//    @Operation(summary = "删除管理员")
-//    @PostMapping("/admin/del")
-//    @CrossOrigin
-//    public R del(@RequestParam List<Long> ids){
-//        adminService.removeByIds(ids);
-//        return R.success();
-//    }
-//
-//    @Operation(summary = "管理员登录")
-//    @PostMapping("/admin/login")
-//    @CrossOrigin
-//    public R<Admin> login(@RequestBody Admin admin){
-//
-//        if(StringUtils.isBlank(admin.getCaptchaId()) || StringUtils.isBlank(admin.getCaptchaCode())){
-//            throw new BussinessException(ResponseCode.CAPTCHA_ERROR);
-//        }
-//        boolean flag = captchCache.validateCaptcha(admin.getCaptchaId(),admin.getCaptchaCode());
-//        if(!flag){
-//            throw new BussinessException(ResponseCode.CAPTCHA_ERROR);
-//        }
-//
-//        LambdaQueryWrapper<Admin> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        lambdaQueryWrapper.eq(Admin::getUsername,admin.getUsername());
-//        lambdaQueryWrapper.eq(Admin::getUserpwd,admin.getUserpwd());
-//        Admin admin1 = adminService.getOne(lambdaQueryWrapper);
-//
-//        if (admin1 == null){
-//            throw new BussinessException(ResponseCode.USERNAME_USERPED_ERROR);
-//        }
-//
-//        StpUtil.login(admin1.getId());
-//        admin1.setToken(StpUtil.getTokenValue());
-//
-//        return R.data(admin1);
-//    }
-//
-//
-//    @CrossOrigin
-//    @PostMapping("/admin/loginout")
-//    public R logout(){
-//        StpUtil.logout();
-//        return R.success();
-//    }
-//}
-
 package com.jiangxijiaoyuan.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
@@ -136,9 +21,13 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Tag(name = "管理员信息管理")
 @RestController
+@RequestMapping("/admin")
 public class AdminController {
     @Resource
     private AdminService adminService;
@@ -147,47 +36,65 @@ public class AdminController {
     private CaptchCache captchCache;
 
     @Operation(summary = "新增管理员")
-    @PostMapping("/admin/add")
+    @PostMapping("/add")
     @CrossOrigin
+    @SaCheckLogin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "操作成功"),
             @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public R add(@RequestBody Admin admin){
+        // 参数校验
+        if (admin == null || 
+            admin.getUsername() == null || admin.getUsername().trim().isEmpty() ||
+            admin.getUserpwd() == null || admin.getUserpwd().trim().isEmpty()) {
+            throw new BussinessException(ResponseCode.ERROR);
+        }
+        
+        // 检查用户名是否存在
         LambdaQueryWrapper<Admin> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(Admin::getUsername,admin.getUsername());
+        lambdaQueryWrapper.eq(Admin::getUsername, admin.getUsername().trim());
         long count = adminService.count(lambdaQueryWrapper);
-        if (count > 0){
+        if (count > 0) {
             throw new BussinessException(ResponseCode.USERNAME_EXIST);
         }
 
-
+        // 设置默认值
+        admin.setUsername(admin.getUsername().trim());
+        admin.setUserpwd(admin.getUserpwd().trim());
+        
         adminService.save(admin);
         return R.success();
     }
 
     @Operation(summary = "管理员信息列表")
-    @PostMapping("admin/list")
+    @PostMapping("/list")
     @CrossOrigin
     @SaCheckLogin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "查询成功"),
             @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
-    public R<PageInfo<Admin>> list(@RequestBody Admin admin,@Parameter(description = "页码", in = ParameterIn.QUERY) @RequestParam Integer pageNum,@Parameter(description = "每页数量", in = ParameterIn.QUERY) @RequestParam Integer pageSize){
+    public R<PageInfo<Admin>> list(
+            @RequestBody(required = false) Admin admin,
+            @Parameter(description = "页码", in = ParameterIn.QUERY) 
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "每页数量", in = ParameterIn.QUERY) 
+            @RequestParam(defaultValue = "10") Integer pageSize){
+        
         LambdaQueryWrapper<Admin> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.like(admin.getName()!=null,Admin::getName,admin.getName());
-        lambdaQueryWrapper.like(admin.getTel()!=null,Admin::getTel,admin.getTel());
+        lambdaQueryWrapper.like(admin != null && admin.getName() != null, Admin::getName, admin.getName());
+        lambdaQueryWrapper.like(admin != null && admin.getTel() != null, Admin::getTel, admin.getTel());
         lambdaQueryWrapper.orderByDesc(Admin::getId);
 
-        PageHelper.startPage(pageNum,pageSize);
+        PageHelper.startPage(pageNum, pageSize);
         List<Admin> list = adminService.list(lambdaQueryWrapper);
-        PageInfo<Admin> pageInfo = new PageInfo(list);
+        PageInfo<Admin> pageInfo = new PageInfo<>(list);
         return R.data(pageInfo);
     }
 
     @Operation(summary = "修改管理员")
-    @PostMapping("/admin/update")
+    @PostMapping("/update")
     @CrossOrigin
     @SaCheckLogin
     @ApiResponses(value = {
@@ -195,44 +102,54 @@ public class AdminController {
             @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
     public R update(@RequestBody Admin admin){
+        if (admin == null || admin.getId() == null) {
+            throw new BussinessException(ResponseCode.ERROR);
+        }
+        
+        // 如果要修改用户名，先检查是否重复
+        if (admin.getUsername() != null && !admin.getUsername().trim().isEmpty()) {
+            LambdaQueryWrapper<Admin> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(Admin::getUsername, admin.getUsername().trim())
+                            .ne(Admin::getId, admin.getId());
+            long count = adminService.count(lambdaQueryWrapper);
+            if (count > 0) {
+                throw new BussinessException(ResponseCode.USERNAME_EXIST);
+            }
+            admin.setUsername(admin.getUsername().trim());
+        }
+        
         adminService.updateById(admin);
         return R.success();
     }
 
-//    @Operation(summary = "删除管理员")
-//    @PostMapping("/admin/del")
-//    @CrossOrigin
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "删除成功"),
-//            @ApiResponse(responseCode = "500", description = "服务器内部错误")
-//    })
-//    public R del(@Parameter(description = "ID 列表") @RequestParam List<Long> ids){
-//        adminService.removeByIds(ids);
-//        return R.success();
-//    }
-
     @Operation(summary = "删除管理员")
-    @PostMapping("/admin/del")
+    @PostMapping("/del")
     @CrossOrigin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "删除成功"),
             @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
-    public R del(@Parameter(description = "ID 列表") @RequestParam List<Long> ids){
-        adminService.removeByIds(ids);
+    public R del(@Parameter(description = "ID 列表（逗号分隔）") @RequestParam String ids){
+        // 将逗号分隔的字符串转换为 List<Long>
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+        
+        adminService.removeByIds(idList);
 
         // 可选：如果删除所有数据，可以重置自增 ID
-         long remainingCount = adminService.count();
-         if (remainingCount == 0) {
-             adminService.resetAutoIncrement();
-         }
+        long remainingCount = adminService.count();
+        if (remainingCount == 0) {
+            adminService.resetAutoIncrement();
+        }
 
         return R.success();
     }
 
 
     @Operation(summary = "管理员登录")
-    @PostMapping("/admin/login")
+    @PostMapping("/login")
     @CrossOrigin
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "登录成功"),
@@ -266,7 +183,7 @@ public class AdminController {
 
 
     @CrossOrigin
-    @PostMapping("/admin/loginout")
+    @PostMapping("/loginout")
     @Operation(summary = "退出登录")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "退出成功"),

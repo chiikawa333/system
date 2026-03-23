@@ -7,7 +7,9 @@ import com.github.pagehelper.PageInfo;
 import com.jiangxijiaoyuan.entity.ParkingLot;
 import com.jiangxijiaoyuan.mapper.ParkingLotMapper;
 import com.jiangxijiaoyuan.service.ParkingLotService;
+import com.jiangxijiaoyuan.util.UploadFile;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,9 +34,6 @@ public class ParkingLotServiceImpl extends ServiceImpl<ParkingLotMapper, Parking
         PageHelper.startPage(pageNum, pageSize);
         List<ParkingLot> list = parkingLotMapper.selectList(lambdaQueryWrapper);
 
-        // 如果需要精确的距离计算，可以在这里过滤
-        // 简单实现可以先返回所有启用的停车场
-
         return new PageInfo<>(list);
     }
 
@@ -47,6 +46,34 @@ public class ParkingLotServiceImpl extends ServiceImpl<ParkingLotMapper, Parking
                         .or()
                         .like(ParkingLot::getAddress, keyword)
         );
+        lambdaQueryWrapper.orderByDesc(ParkingLot::getId);
+
+        PageHelper.startPage(pageNum, pageSize);
+        List<ParkingLot> list = parkingLotMapper.selectList(lambdaQueryWrapper);
+
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<ParkingLot> getParkingLots(String keyword, Integer status, Integer pageNum, Integer pageSize) {
+        LambdaQueryWrapper<ParkingLot> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        
+        // 关键词搜索
+        if (StringUtils.isNotBlank(keyword)) {
+            lambdaQueryWrapper.and(wrapper ->
+                    wrapper.like(ParkingLot::getName, keyword)
+                            .or()
+                            .like(ParkingLot::getAddress, keyword)
+                            .or()
+                            .like(ParkingLot::getDescription, keyword)
+            );
+        }
+        
+        // 状态过滤
+        if (status != null) {
+            lambdaQueryWrapper.eq(ParkingLot::getStatus, status);
+        }
+        
         lambdaQueryWrapper.orderByDesc(ParkingLot::getId);
 
         PageHelper.startPage(pageNum, pageSize);
