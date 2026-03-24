@@ -12,6 +12,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,35 +28,54 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveCarData(CarData carData) {
+        System.out.println("=== 接收到小车位置数据 ===");
+        System.out.println("carId: " + carData.getCarId());
+        System.out.println("plateNumber: " + carData.getPlateNumber());
+        System.out.println("xCoordinate: '" + carData.getXCoordinate() + "'");
+        System.out.println("yCoordinate: '" + carData.getYCoordinate() + "'");
+        System.out.println("interval: '" + carData.getInterval() + "'");
+        System.out.println("speed: " + carData.getSpeed());
+        System.out.println("status: " + carData.getStatus());
+        System.out.println("seconds: " + carData.getSeconds());
+        
         CarTrajectory trajectory = new CarTrajectory();
         trajectory.setCarId(carData.getCarId());
         trajectory.setPlateNumber(carData.getPlateNumber());
         trajectory.setVehicleType(carData.getVehicleType() != null ? carData.getVehicleType() : 1);
-        trajectory.setXCoordinate(carData.getXCoordinate());
-        trajectory.setYCoordinate(carData.getYCoordinate());
-        trajectory.setSeconds(carData.getSeconds());
-        trajectory.setSpeed(carData.getSpeed());
+        trajectory.setXCoordinate(carData.getXCoordinate() != null && !carData.getXCoordinate().isEmpty() ? carData.getXCoordinate() : "0");
+        trajectory.setYCoordinate(carData.getYCoordinate() != null && !carData.getYCoordinate().isEmpty() ? carData.getYCoordinate() : "0");
+        trajectory.setInterval(carData.getInterval() != null && !carData.getInterval().isEmpty() ? carData.getInterval() : "0");
+        trajectory.setSpeed(carData.getSpeed() != null ? carData.getSpeed() : new BigDecimal("0"));
         trajectory.setStatus(carData.getStatus() != null ? carData.getStatus() : 1);
 
         if (carData.getStatus() != null && carData.getStatus() == 1) {
             trajectory.setEntryTime(LocalDateTime.now());
         }
 
-        return save(trajectory);
+        boolean result = save(trajectory);
+        System.out.println("保存结果：" + result);
+        System.out.println("生成的轨迹 ID: " + trajectory.getId());
+        System.out.println("保存的 xCoordinate: " + trajectory.getXCoordinate());
+        System.out.println("保存的 yCoordinate: " + trajectory.getYCoordinate());
+        return result;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean batchSaveCarData(List<CarData> carDataList) {
         List<CarTrajectory> trajectories = carDataList.stream().map(carData -> {
+            System.out.println("批量保存 - 处理车辆：" + carData.getCarId());
+            System.out.println("  xCoordinate: '" + carData.getXCoordinate() + "'");
+            System.out.println("  yCoordinate: '" + carData.getYCoordinate() + "'");
+            
             CarTrajectory trajectory = new CarTrajectory();
             trajectory.setCarId(carData.getCarId());
             trajectory.setPlateNumber(carData.getPlateNumber());
             trajectory.setVehicleType(carData.getVehicleType() != null ? carData.getVehicleType() : 1);
-            trajectory.setXCoordinate(carData.getXCoordinate());
-            trajectory.setYCoordinate(carData.getYCoordinate());
-            trajectory.setSeconds(carData.getSeconds());
-            trajectory.setSpeed(carData.getSpeed());
+            trajectory.setXCoordinate(carData.getXCoordinate() != null && !carData.getXCoordinate().isEmpty() ? carData.getXCoordinate() : "0");
+            trajectory.setYCoordinate(carData.getYCoordinate() != null && !carData.getYCoordinate().isEmpty() ? carData.getYCoordinate() : "0");
+            trajectory.setInterval(carData.getInterval() != null && !carData.getInterval().isEmpty() ? carData.getInterval() : "0");
+            trajectory.setSpeed(carData.getSpeed() != null ? carData.getSpeed() : new BigDecimal("0"));
             trajectory.setStatus(carData.getStatus() != null ? carData.getStatus() : 1);
 
             if (carData.getStatus() != null && carData.getStatus() == 1) {
@@ -65,7 +85,9 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
             return trajectory;
         }).collect(Collectors.toList());
 
-        return saveBatch(trajectories);
+        boolean result = saveBatch(trajectories);
+        System.out.println("批量保存结果：" + result);
+        return result;
     }
 
     @Override
@@ -103,7 +125,7 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
             data.setXCoordinate(trajectory.getXCoordinate());
             data.setYCoordinate(trajectory.getYCoordinate());
             data.setSpeed(trajectory.getSpeed());
-            data.setSeconds(trajectory.getSeconds());
+            data.setInterval(trajectory.getInterval());
 
             return data;
         }).collect(Collectors.toList());

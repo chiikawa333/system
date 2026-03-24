@@ -1,5 +1,6 @@
 package com.jiangxijiaoyuan.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import java.math.BigDecimal;
 
@@ -12,8 +13,10 @@ public class CarData {
     
     private Integer vehicleType;
     
+    @JsonProperty("xCoordinate")
     private String xCoordinate;
     
+    @JsonProperty("yCoordinate")
     private String yCoordinate;
     
     private String interval;

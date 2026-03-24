@@ -1,6 +1,7 @@
 package com.jiangxijiaoyuan.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,12 +29,17 @@ public class CarTrajectory {
     private LocalDateTime exitTime;
 
     @TableField("x_coordinate")
+    @JsonProperty("xCoordinate")
     private String xCoordinate;
 
     @TableField("y_coordinate")
+    @JsonProperty("yCoordinate")
     private String yCoordinate;
 
     @TableField("`interval`")
+    private String interval;
+
+    @TableField(exist = false)
     private Integer seconds;
 
     @TableField("speed")

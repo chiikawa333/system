@@ -144,7 +144,7 @@ POST http://localhost:8080/adminsystem/parking/init/mock
 ### ==================== 车辆轨迹模块测试 ====================
 
 ### 16. 保存单个车辆位置
-POST http://localhost:8080/adminsystem/car/trajectory/save
+POST http://121.40.121.6:8080/adminsystem/car/trajectory/save
 Content-Type: application/json
 
 {
