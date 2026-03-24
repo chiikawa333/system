@@ -59,9 +59,6 @@ public class ParkingLot {
     @Schema(description = "评分")
     private BigDecimal rating;
 
-    @Schema(description = "图片 URL")
-    private String imageUrl;
-
     @Schema(description = "距离（公里）")
     @TableField("distance")
     private BigDecimal distance;

@@ -6,11 +6,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import com.jiangxijiaoyuan.dto.FeeConfigDTO;
-import com.jiangxijiaoyuan.entity.FeeConfig;
 import com.jiangxijiaoyuan.entity.ParkingLot;
 import com.jiangxijiaoyuan.responce.R;
-import com.jiangxijiaoyuan.service.FeeConfigService;
 import com.jiangxijiaoyuan.service.ParkingLotService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,9 +27,6 @@ public class ParkingLotController {
     @Resource
     private ParkingLotService parkingLotService;
     
-    @Resource
-    private FeeConfigService feeConfigService;
-
     @Operation(summary = "获取附近停车场列表")
     @GetMapping("/list/nearby")
     @CrossOrigin
@@ -195,38 +189,6 @@ public class ParkingLotController {
     })
     public R<Boolean> delete(@PathVariable Long id) {
         boolean result = parkingLotService.removeById(id);
-        return result ? R.success() : R.fail();
-    }
-
-    @Operation(summary = "获取收费标准配置")
-    @GetMapping("/fee/config")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "查询成功"),
-            @ApiResponse(responseCode = "404", description = "配置不存在"),
-            @ApiResponse(responseCode = "500", description = "服务器内部错误")
-    })
-    public R<FeeConfig> getFeeConfig(
-            @Parameter(description = "停车场ID", required = true)
-            @RequestParam Long parkingLotId) {
-        
-        FeeConfig feeConfig = feeConfigService.getByParkingLotId(parkingLotId);
-        return feeConfig != null ? R.data(feeConfig) : R.fail("该停车场未配置收费标准");
-    }
-
-    @Operation(summary = "更新收费标准配置")
-    @PostMapping("/fee/config")
-    @SaCheckLogin
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "更新成功"),
-            @ApiResponse(responseCode = "500", description = "服务器内部错误")
-    })
-    public R<Boolean> updateFeeConfig(
-            @Parameter(description = "停车场ID", required = true)
-            @RequestParam Long parkingLotId,
-            
-            @RequestBody FeeConfigDTO configDTO) {
-        
-        boolean result = feeConfigService.saveOrUpdateConfig(parkingLotId, configDTO);
         return result ? R.success() : R.fail();
     }
 }

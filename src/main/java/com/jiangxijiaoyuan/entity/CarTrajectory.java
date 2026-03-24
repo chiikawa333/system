@@ -42,7 +42,4 @@ public class CarTrajectory {
     @TableField("status")
     private Integer status;
 
-    @TableField(value = "deleted", fill = FieldFill.INSERT)
-    @TableLogic
-    private Integer deleted;
 }
