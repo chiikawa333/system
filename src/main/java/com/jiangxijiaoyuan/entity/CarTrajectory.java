@@ -34,7 +34,7 @@ public class CarTrajectory {
     private String yCoordinate;
 
     @TableField("`interval`")
-    private String interval;
+    private Integer seconds;
 
     @TableField("speed")
     private BigDecimal speed;

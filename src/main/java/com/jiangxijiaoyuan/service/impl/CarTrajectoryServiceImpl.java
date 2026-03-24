@@ -33,7 +33,7 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
         trajectory.setVehicleType(carData.getVehicleType() != null ? carData.getVehicleType() : 1);
         trajectory.setXCoordinate(carData.getXCoordinate());
         trajectory.setYCoordinate(carData.getYCoordinate());
-        trajectory.setInterval(carData.getInterval());
+        trajectory.setSeconds(carData.getSeconds());
         trajectory.setSpeed(carData.getSpeed());
         trajectory.setStatus(carData.getStatus() != null ? carData.getStatus() : 1);
 
@@ -54,7 +54,7 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
             trajectory.setVehicleType(carData.getVehicleType() != null ? carData.getVehicleType() : 1);
             trajectory.setXCoordinate(carData.getXCoordinate());
             trajectory.setYCoordinate(carData.getYCoordinate());
-            trajectory.setInterval(carData.getInterval());
+            trajectory.setSeconds(carData.getSeconds());
             trajectory.setSpeed(carData.getSpeed());
             trajectory.setStatus(carData.getStatus() != null ? carData.getStatus() : 1);
 
@@ -103,17 +103,7 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
             data.setXCoordinate(trajectory.getXCoordinate());
             data.setYCoordinate(trajectory.getYCoordinate());
             data.setSpeed(trajectory.getSpeed());
-            data.setInterval(trajectory.getInterval());
-
-            if (trajectory.getEntryTime() != null) {
-                long seconds = java.time.Duration.between(
-                        trajectory.getEntryTime(),
-                        LocalDateTime.now()
-                ).getSeconds();
-                data.setSeconds((int) seconds);
-            } else {
-                data.setSeconds(0);
-            }
+            data.setSeconds(trajectory.getSeconds());
 
             return data;
         }).collect(Collectors.toList());
