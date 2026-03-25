@@ -80,4 +80,25 @@ public class CarTrajectoryController {
         pageInfo.setTotal(page.getTotal());
         return R.data(pageInfo);
     }
+
+    @Operation(summary = "删除单个小车轨迹")
+    @DeleteMapping("/delete/{id}")
+    public R<Boolean> deleteById(@PathVariable Long id) {
+        boolean result = carTrajectoryService.deleteById(id);
+        return result ? R.success() : R.fail("删除失败");
+    }
+
+    @Operation(summary = "批量删除小车轨迹")
+    @DeleteMapping("/delete/batch")
+    public R<Boolean> deleteBatch(@RequestBody List<Long> ids) {
+        boolean result = carTrajectoryService.deleteBatch(ids);
+        return result ? R.success() : R.fail("删除失败");
+    }
+
+    @Operation(summary = "清空所有小车轨迹数据")
+    @DeleteMapping("/delete/all")
+    public R<Boolean> deleteAll() {
+        carTrajectoryService.deleteAll();
+        return R.success("清空成功");
+    }
 }

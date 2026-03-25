@@ -148,4 +148,26 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
     public void resetAutoIncrement() {
         carTrajectoryMapper.resetAutoIncrement();
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteById(Long id) {
+        return removeById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return false;
+        }
+        return removeByIds(ids);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteAll() {
+        remove(null);
+        resetAutoIncrement();
+    }
 }

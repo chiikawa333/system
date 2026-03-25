@@ -23,4 +23,10 @@ public interface CarTrajectoryService extends IService<CarTrajectory> {
     Page<CarTrajectory> getRunningCars(int pageNum, int pageSize);
 
     void resetAutoIncrement();
+
+    boolean deleteById(Long id);
+
+    boolean deleteBatch(List<Long> ids);
+
+    void deleteAll();
 }
