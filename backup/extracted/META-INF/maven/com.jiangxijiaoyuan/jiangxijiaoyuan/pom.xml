@@ -8,7 +8,7 @@
         <version>3.2.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.jiangxijiaoyuan</groupId>
+    <groupId>com.intelligent.driver</groupId>
     <artifactId>jiangxijiaoyuan</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>adminsystem</name>

@@ -8,8 +8,8 @@
         <version>3.3.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.jiangxijiaoyuan</groupId>
-    <artifactId>jiangxijiaoyuan</artifactId>
+    <groupId>com.intelligent.driver</groupId>
+    <artifactId>adminsystem</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>adminsystem</name>
     <description>adminsystem</description>

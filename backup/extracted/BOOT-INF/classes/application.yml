@@ -35,7 +35,7 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.jiangxijiaoyuan.controller
+      packages-to-scan: com.intelligent.driver.controller
 
 knife4j:
   enable: true
@@ -47,7 +47,7 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  type-aliases-package: com.jiangxijiaoyuan.entity
+  type-aliases-package: com.intelligent.driver.entity
 
 sa-token:
   token-name: pdmtoken

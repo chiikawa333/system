@@ -4,7 +4,7 @@ Build-Jdk-Spec: 17
 Implementation-Title: adminsystem
 Implementation-Version: 0.0.1-SNAPSHOT
 Main-Class: org.springframework.boot.loader.launch.JarLauncher
-Start-Class: com.jiangxijiaoyuan.AdminsystemApplication
+Start-Class: com.intelligent.driver.AdminsystemApplication
 Spring-Boot-Version: 3.2.7
 Spring-Boot-Classes: BOOT-INF/classes/
 Spring-Boot-Lib: BOOT-INF/lib/
