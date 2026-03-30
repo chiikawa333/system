@@ -54,7 +54,7 @@ public class CarTrajectoryController {
     @GetMapping("/latest/{carId}")
     public R<CarTrajectory> getLatest(@PathVariable String carId) {
         CarTrajectory trajectory = carTrajectoryService.getLatestPosition(carId);
-        return trajectory != null ? R.data(trajectory) : R.fail("未找到车辆信息");
+        return trajectory != null ? R.data(trajectory) : R.fail("未找到车辆信息,请重新输入");
     }
 
     @Operation(summary = "获取小车历史轨迹")
@@ -71,7 +71,6 @@ public class CarTrajectoryController {
 
     @Operation(summary = "获取所有运行中的小车")
     @GetMapping("/running")
-    @SaCheckLogin
     public R<PageInfo<CarTrajectory>> getRunning(
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
             @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer pageSize) {

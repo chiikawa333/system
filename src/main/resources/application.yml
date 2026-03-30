@@ -5,7 +5,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/admin?characterEncoding=UTF-8&serverTimezone=GMT&useSSL=false
+    url: jdbc:mysql://localhost:3306/admin?characterEncoding=UTF-8&serverTimezone=GMT&useSSL=true
     username: root
     password: 666666
     type: com.alibaba.druid.pool.DruidDataSource
@@ -62,6 +62,3 @@ file:
   server:
     dir: D:\javacode\
     path: upload
-
-
-
