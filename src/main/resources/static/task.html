@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市场经理任务下发系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .role-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .task-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transform: translateX(5px);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .task-priority {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .priority-high {
+            background: #fee;
+            color: #c00;
+        }
+
+        .priority-medium {
+            background: #ffa500;
+            color: white;
+        }
+
+        .priority-low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .task-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-left: 4px solid #28a745;
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .receiver-view .main-content {
+            grid-template-columns: 1fr;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .role-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .role-selector button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .role-selector button.active,
+        .role-selector button:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="role-selector" id="roleSelector">
+        <h2 style="margin-bottom: 15px;">选择您的角色</h2>
+        <button onclick="selectRole('market_manager')">市场经理</button>
+        <button onclick="selectRole('fullstack')">全栈工程师</button>
+        <button onclick="selectRole('harmonyos')">鸿蒙工程师</button>
+        <button onclick="selectRole('embedded')">硬件工程师</button>
+    </div>
+
+    <div id="appContent" class="hidden">
+        <div class="header">
+            <h1>📋 市场经理任务下发系统</h1>
+            <div class="user-info">
+                <span id="currentRole" class="role-badge"></span>
+                <button onclick="changeRole()" style="padding: 8px 16px; cursor: pointer;">切换角色</button>
+            </div>
+        </div>
+
+        <div class="main-content" id="publisherView">
+            <div class="card">
+                <h2>📝 发布新任务</h2>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label>任务标题 *</label>
+                        <input type="text" id="title" required placeholder="请输入任务标题">
+                    </div>
+                    <div class="form-group">
+                        <label>执行角色 *</label>
+                        <select id="targetRole" required>
+                            <option value="">请选择</option>
+                            <option value="fullstack">全栈工程师</option>
+                            <option value="harmonyos">鸿蒙工程师</option>
+                            <option value="embedded">硬件工程师</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>优先级</label>
+                        <select id="priority">
+                            <option value="1">普通</option>
+                            <option value="2">中等</option>
+                            <option value="3">紧急</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>截止时间</label>
+                        <input type="datetime-local" id="deadline">
+                    </div>
+                    <div class="form-group">
+                        <label>任务内容 *</label>
+                        <textarea id="content" required placeholder="详细描述任务要求..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">🚀 立即发布</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📊 已发布任务</h2>
+                <div class="task-list" id="publishedTasks">
+                    <p style="text-align: center; color: #999;">加载中...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card hidden" id="receiverView">
+            <h2>📬 收到的任务</h2>
+            <div class="task-list" id="receivedTasks">
+                <p style="text-align: center; color: #999;">等待任务...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '/adminsystem/market';
+    let currentRole = '';
+    let ws = null;
+
+    function selectRole(role) {
+        currentRole = role;
+        document.getElementById('roleSelector').classList.add('hidden');
+        document.getElementById('appContent').classList.remove('hidden');
+
+        const roleNames = {
+            'market_manager': '市场经理',
+            'fullstack': '全栈工程师',
+            'harmonyos': '鸿蒙工程师',
+            'embedded': '硬件工程师'
+        };
+
+        document.getElementById('currentRole').textContent = roleNames[role];
+
+        if (role === 'market_manager') {
+            document.getElementById('publisherView').classList.remove('hidden');
+            document.getElementById('receiverView').classList.add('hidden');
+            loadPublishedTasks();
+        } else {
+            document.getElementById('publisherView').classList.add('hidden');
+            document.getElementById('receiverView').classList.remove('hidden');
+            // 先加载数据，再连接 WebSocket
+            loadReceivedTasks();
+            setTimeout(() => connectWebSocket(role), 500);
+        }
+    }
+
+    function changeRole() {
+        if (ws) {
+            ws.close();
+        }
+        location.reload();
+    }
+
+    function connectWebSocket(role) {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/adminsystem/ws/market/${role}`;
+        console.log('尝试连接 WebSocket:', wsUrl);
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            console.log('WebSocket 连接成功');
+            // 连接成功后再次刷新数据
+            loadReceivedTasks();
+        };
+
+        ws.onmessage = (event) => {
+            console.log('收到 WebSocket 消息:', event.data);
+            const message = JSON.parse(event.data);
+            if (message.type === 'new_task') {
+                showNotification(`新任务：${message.data.title}`);
+                loadReceivedTasks();
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket 错误:', error);
+            console.log('WebSocket 连接失败，将使用轮询方式刷新数据');
+            // 如果 WebSocket 失败，每 5 秒轮询一次
+            setInterval(() => loadReceivedTasks(), 5000);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket 连接关闭');
+            // 3 秒后尝试重连
+            setTimeout(() => {
+                console.log('尝试重新连接 WebSocket...');
+                connectWebSocket(role);
+            }, 3000);
+        };
+    }
+
+    function showNotification(text) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = text;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const taskData = {
+            title: document.getElementById('title').value,
+            targetRole: document.getElementById('targetRole').value,
+            content: document.getElementById('content').value,
+            priority: parseInt(document.getElementById('priority').value),
+            deadline: document.getElementById('deadline').value || null
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/task/publish`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(taskData)
+            });
+
+            const result = await response.json();
+            if (result.code === 200 || result.code === 0) {
+                showNotification('任务发布成功！');
+                document.getElementById('taskForm').reset();
+                loadPublishedTasks();
+            } else {
+                alert('发布失败：' + (result.message || '未知错误'));
+            }
+        } catch (error) {
+            alert('发布失败：' + error.message);
+        }
+    });
+
+    async function loadPublishedTasks() {
+        try {
+            const response = await fetch(`${API_BASE}/tasks?page=1&limit=20`);
+            const result = await response.json();
+
+            const container = document.getElementById('publishedTasks');
+            const tasks = result.data || [];
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">暂无任务</p>';
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => createTaskHTML(task)).join('');
+        } catch (error) {
+            console.error('加载任务失败:', error);
+        }
+    }
+
+    async function loadReceivedTasks() {
+        try {
+            const response = await fetch(`${API_BASE}/tasks?page=1&limit=20&targetRole=${currentRole}`);
+            const result = await response.json();
+
+            const container = document.getElementById('receivedTasks');
+            const tasks = result.data || [];
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">暂无任务</p>';
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => createTaskHTML(task)).join('');
+        } catch (error) {
+            console.error('加载任务失败:', error);
+        }
+    }
+
+    function createTaskHTML(task) {
+        const priorityClass = {
+            '1': 'priority-low',
+            '2': 'priority-medium',
+            '3': 'priority-high'
+        }[task.priority];
+
+        const priorityText = {
+            '1': '普通',
+            '2': '中等',
+            '3': '紧急'
+        }[task.priority];
+
+        return `
+            <div class="task-item">
+                <div class="task-header">
+                    <span class="task-title">${escapeHtml(task.title)}</span>
+                    <span class="task-priority ${priorityClass}">${priorityText}</span>
+                </div>
+                <div class="task-content">${escapeHtml(task.content)}</div>
+                <div class="task-meta">
+                    <span>发布者：${escapeHtml(task.publisherName || '未知')}</span>
+                    <span>${new Date(task.createTime).toLocaleString('zh-CN')}</span>
+                    <span class="task-status status-${task.status}">${task.status}</span>
+                </div>
+                <div style="margin-top: 10px; text-align: right;">
+                    <button onclick="deleteTask(${task.id})" style="background: #dc3545; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">🗑️ 删除</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    async function updateTaskStatus(taskId, status) {
+        try {
+            await fetch(`${API_BASE}/task/${taskId}/status?status=${status}`, {
+                method: 'PUT'
+            });
+            showNotification('状态已更新');
+            loadReceivedTasks();
+        } catch (error) {
+            alert('更新失败：' + error.message);
+        }
+    }
+
+    async function deleteTask(taskId) {
+        if (!confirm('确定要删除这个任务吗？')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/task/${taskId}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+            if (result.code === 200 || result.code === 0) {
+                showNotification('任务已删除');
+                loadPublishedTasks();
+                loadReceivedTasks();
+            } else {
+                alert('删除失败：' + (result.message || '未知错误'));
+            }
+        } catch (error) {
+            alert('删除失败：' + error.message);
+        }
+    }
+</script>
+</body>
+</html>

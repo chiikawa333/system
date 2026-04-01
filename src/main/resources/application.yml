@@ -5,9 +5,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/admin?characterEncoding=UTF-8&serverTimezone=GMT&useSSL=true
-    username: root
-    password: 666666
+    url: jdbc:mysql://121.40.121.6:3306/adminsystem?characterEncoding=UTF-8&serverTimezone=GMT&useSSL=false&allowPublicKeyRetrieval=true
+    username: admin
+    password: Tjl666666
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       initial-size: 5
@@ -62,3 +62,12 @@ file:
   server:
     dir: D:\javacode\
     path: upload
+
+# AI 配置 - 硅基流动（SiliconFlow）
+ai:
+  siliconflow:
+    api-key: sk-xjttbofpzawncizlwqhyrqsetrcuntdggcswpdcifvgogrro
+    base-url: https://api.siliconflow.cn
+    model: deepseek-ai/DeepSeek-V3
+    max-tokens: 2048
+    temperature: 0.9  # 从 0.7 提高到 0.9，让 AI 更活泼
