@@ -1,44 +1,3 @@
-//package com.intelligent.driver.entity;
-//
-//import com.baomidou.mybatisplus.annotation.IdType;
-//import com.baomidou.mybatisplus.annotation.TableField;
-//import com.baomidou.mybatisplus.annotation.TableId;
-//import com.baomidou.mybatisplus.annotation.TableName;
-//import io.swagger.v3.oas.annotations.media.Schema;
-//import lombok.Data;
-//
-//@Data
-//@TableName("admins")
-//@Schema(description = "管理员信息实体类")
-//public class Admin {
-//
-//    @TableId(type = IdType.AUTO)
-//    private Long id;
-//
-//    @Schema(description = "用户名")
-//    private String username;
-//
-//
-//    private String userpwd;
-//
-//    private String name;
-//
-//    private String sex;
-//
-//    private String tel;
-//
-//    private String headurl;
-//
-//    @TableField(exist = false)
-//    private String captchaId;
-//
-//    @TableField(exist = false)
-//    private String captchaCode;
-//
-//    @TableField(exist = false)
-//    private String token;
-//
-//}
 package com.intelligent.driver.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -89,7 +48,6 @@ public class Admin {
     private String token;
 
 }
-
 
 
 

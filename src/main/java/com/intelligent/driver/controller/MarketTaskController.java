@@ -23,9 +23,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Controller
 @RequestMapping("/market")
@@ -96,6 +96,60 @@ public class MarketTaskController {
     }
 
     @ResponseBody
+    @PostMapping("/task/publish/batch")
+    public R<List<MarketTask>> publishBatch(@RequestBody Map<String, Object> params) {
+        MarketTask taskTemplate = (MarketTask) params.get("task");
+        List<String> targetRoles = (List<String>) params.get("targetRoles");
+        
+        if (targetRoles == null || targetRoles.isEmpty()) {
+            return R.fail("至少选择一个目标角色");
+        }
+        
+        List<MarketTask> publishedTasks = new ArrayList<>();
+        
+        for (String role : targetRoles) {
+            MarketTask task = new MarketTask();
+            task.setTitle(taskTemplate.getTitle());
+            task.setContent(taskTemplate.getContent());
+            task.setPriority(taskTemplate.getPriority());
+            task.setDeadline(taskTemplate.getDeadline());
+            task.setTargetRole(role);
+            
+            try {
+                Object loginId = StpUtil.getLoginIdDefaultNull();
+                if (loginId != null) {
+                    int publisherId = ((Number) loginId).intValue();
+                    task.setPublisherId(publisherId);
+                    
+                    Admin admin = adminMapper.selectById(publisherId);
+                    if (admin != null) {
+                        task.setPublisherName(admin.getName());
+                    }
+                } else {
+                    task.setPublisherId(11);
+                    task.setPublisherName("市场经理");
+                }
+            } catch (Exception e) {
+                task.setPublisherId(11);
+                task.setPublisherName("市场经理");
+            }
+            
+            task.setStatus("pending");
+            task.setCreateTime(LocalDateTime.now());
+            if (task.getPriority() == null) {
+                task.setPriority(1);
+            }
+            
+            marketTaskMapper.insert(task);
+            publishedTasks.add(task);
+            
+            WebSocketServer.sendAll(role, task);
+        }
+        
+        return R.data(publishedTasks);
+    }
+
+    @ResponseBody
     @PutMapping("/task/{id}/status")
     public R<MarketTask> updateStatus(@PathVariable Integer id, @RequestParam String status) {
         MarketTask task = marketTaskMapper.selectById(id);
@@ -105,6 +159,45 @@ public class MarketTaskController {
             return R.data(task);
         }
         return R.fail(500, "任务不存在");
+    }
+
+    @ResponseBody
+    @PutMapping("/task/{id}/complete")
+    public R<MarketTask> completeTask(@PathVariable Integer id, @RequestParam(required = false) String feedback) {
+        MarketTask task = marketTaskMapper.selectById(id);
+        if (task != null) {
+            task.setStatus("completed");
+            marketTaskMapper.updateById(task);
+            
+            WebSocketServer.sendAll("market_manager", task);
+            
+            return R.data(task);
+        }
+        return R.fail(500, "任务不存在");
+    }
+
+    @ResponseBody
+    @GetMapping("/tasks/changes")
+    public R<Map<String, Object>> getTaskChanges(
+            @RequestParam String targetRole,
+            @RequestParam(required = false) Long lastUpdate) {
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        LambdaQueryWrapper<MarketTask> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(MarketTask::getTargetRole, targetRole);
+        wrapper.orderByDesc(MarketTask::getCreateTime);
+        
+        if (lastUpdate != null) {
+            wrapper.gt(MarketTask::getCreateTime, new Date(lastUpdate));
+        }
+        
+        List<MarketTask> tasks = marketTaskMapper.selectList(wrapper);
+        result.put("tasks", tasks);
+        result.put("hasChanges", !tasks.isEmpty());
+        result.put("timestamp", System.currentTimeMillis());
+        
+        return R.data(result);
     }
 
     @ResponseBody
