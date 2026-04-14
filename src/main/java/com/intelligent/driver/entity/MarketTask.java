@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("market_tasks")
@@ -26,7 +27,10 @@ public class MarketTask {
 
     private LocalDateTime createTime;
 
-    private LocalDateTime deadline;
+    private String deadline;
 
     private Integer priority;
+
+    @TableField(exist = false)
+    private List<TaskAttachment> attachments;
 }

@@ -46,6 +46,8 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
         trajectory.setInterval(carData.getInterval() != null && !carData.getInterval().isEmpty() ? carData.getInterval() : "0");
         trajectory.setSpeed(carData.getSpeed() != null ? carData.getSpeed() : new BigDecimal("0"));
         trajectory.setStatus(carData.getStatus() != null ? carData.getStatus() : 1);
+        trajectory.setStartPoint(carData.getStartPoint());
+        trajectory.setEndPoint(carData.getEndPoint());
 
         if (carData.getStatus() != null && carData.getStatus() == 1) {
             trajectory.setEntryTime(LocalDateTime.now());
@@ -76,6 +78,8 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
             trajectory.setInterval(carData.getInterval() != null && !carData.getInterval().isEmpty() ? carData.getInterval() : "0");
             trajectory.setSpeed(carData.getSpeed() != null ? carData.getSpeed() : new BigDecimal("0"));
             trajectory.setStatus(carData.getStatus() != null ? carData.getStatus() : 1);
+            trajectory.setStartPoint(carData.getStartPoint());
+            trajectory.setEndPoint(carData.getEndPoint());
 
             if (carData.getStatus() != null && carData.getStatus() == 1) {
                 trajectory.setEntryTime(LocalDateTime.now());
@@ -125,6 +129,8 @@ public class CarTrajectoryServiceImpl extends ServiceImpl<CarTrajectoryMapper, C
             data.setYCoordinate(trajectory.getYCoordinate());
             data.setSpeed(trajectory.getSpeed());
             data.setInterval(trajectory.getInterval());
+            data.setStartPoint(trajectory.getStartPoint());
+            data.setEndPoint(trajectory.getEndPoint());
 
             return data;
         }).collect(Collectors.toList());

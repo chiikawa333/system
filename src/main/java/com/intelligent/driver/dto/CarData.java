@@ -26,4 +26,8 @@ public class CarData {
     private Integer status;
     
     private Integer seconds;
+
+    private String startPoint;
+
+    private String endPoint;
 }

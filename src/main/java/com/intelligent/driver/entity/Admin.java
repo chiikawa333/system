@@ -23,11 +23,13 @@ public class Admin {
     @Schema(description = "密码")
     private String userpwd;
 
+
     @Schema(description = "姓名")
     private String name;
 
     @Schema(description = "性别")
     private String sex;
+
 
     @Schema(description = "电话")
     private String tel;

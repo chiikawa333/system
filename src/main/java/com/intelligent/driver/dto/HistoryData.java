@@ -17,4 +17,8 @@ public class HistoryData {
     private Integer seconds;
     
     private String interval;
+
+    private String startPoint;
+
+    private String endPoint;
 }

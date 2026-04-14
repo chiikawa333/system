@@ -48,4 +48,10 @@ public class CarTrajectory {
     @TableField("status")
     private Integer status;
 
+    @TableField("start_point")
+    private String startPoint;
+
+    @TableField("end_point")
+    private String endPoint;
+
 }
