@@ -11,6 +11,7 @@ import com.intelligent.driver.mapper.AdminMapper;
 import com.intelligent.driver.mapper.MarketTaskMapper;
 import com.intelligent.driver.mapper.TaskAttachmentMapper;
 import com.intelligent.driver.responce.R;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
@@ -36,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Tag(name = "市场任务管理")
 @Controller
 @RequestMapping("/market")
 public class MarketTaskController {

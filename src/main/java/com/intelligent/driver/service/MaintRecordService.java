@@ -1,7 +1,7 @@
 package com.intelligent.driver.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.github.pagehelper.PageInfo;
 import com.intelligent.driver.dto.MaintRecordDTO;
 import com.intelligent.driver.entity.MaintRecord;
 
@@ -13,7 +13,9 @@ public interface MaintRecordService extends IService<MaintRecord> {
 
     boolean updateMaintRecord(MaintRecordDTO dto);
 
-    Page<MaintRecord> getMaintRecords(int pageNum, int pageSize, Integer status);
+    PageInfo<MaintRecord> getMaintRecords(int pageNum, int pageSize, Integer status);
+
+    List<MaintRecord> getMaintRecords(Integer status);
 
     MaintRecord getMaintRecordById(Long id);
 
@@ -21,5 +23,5 @@ public interface MaintRecordService extends IService<MaintRecord> {
 
     boolean deleteBatchMaintRecords(List<Long> ids);
 
-    Page<MaintRecord> getMaintHistory(Long userId, int pageNum, int pageSize);
+    PageInfo<MaintRecord> getMaintHistory(Long userId, int pageNum, int pageSize);
 }

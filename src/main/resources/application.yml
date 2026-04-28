@@ -63,11 +63,19 @@ file:
     dir: D:\javacode\
     path: upload
 
-# AI 配置 - 硅基流动（SiliconFlow）
+# AI 配置 - 硅基流动（SiliconFlow）- V3 移动端用
 ai:
   siliconflow:
-    api-key: sk-xjttbofpzawncizlwqhyrqsetrcuntdggcswpdcifvgogrro
+    api-key: sk-859ef***********************8c17
     base-url: https://api.siliconflow.cn
     model: deepseek-ai/DeepSeek-V3
     max-tokens: 2048
-    temperature: 0.9  # 从 0.7 提高到 0.9，让 AI 更活泼
+    temperature: 0.9
+  
+  # DeepSeek 官方 API - V4 PC端用
+  deepseek:
+    api-key: sk-859ef***********************8c17
+    base-url: https://api.deepseek.com
+    model: deepseek-v4-flash
+    max-tokens: 2048
+    temperature: 0.9

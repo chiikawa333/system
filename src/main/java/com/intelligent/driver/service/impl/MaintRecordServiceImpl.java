@@ -1,8 +1,9 @@
 package com.intelligent.driver.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.intelligent.driver.dto.MaintRecordDTO;
 import com.intelligent.driver.entity.MaintRecord;
 import com.intelligent.driver.mapper.MaintRecordMapper;
@@ -12,7 +13,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,6 +28,9 @@ public class MaintRecordServiceImpl extends ServiceImpl<MaintRecordMapper, Maint
         MaintRecord record = new MaintRecord();
         BeanUtils.copyProperties(dto, record);
 
+        if (record.getAppointmentNo() == null) {
+            record.setAppointmentNo(generateAppointmentNo());
+        }
         if (record.getStatus() == null) {
             record.setStatus(1);
         }
@@ -44,6 +47,12 @@ public class MaintRecordServiceImpl extends ServiceImpl<MaintRecordMapper, Maint
         return save(record);
     }
 
+    private String generateAppointmentNo() {
+        String dateStr = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        long count = count() + 1;
+        return "MR" + dateStr + String.format("%04d", count);
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateMaintRecord(MaintRecordDTO dto) {
@@ -53,8 +62,7 @@ public class MaintRecordServiceImpl extends ServiceImpl<MaintRecordMapper, Maint
     }
 
     @Override
-    public Page<MaintRecord> getMaintRecords(int pageNum, int pageSize, Integer status) {
-        Page<MaintRecord> page = new Page<>(pageNum, pageSize);
+    public PageInfo<MaintRecord> getMaintRecords(int pageNum, int pageSize, Integer status) {
         LambdaQueryWrapper<MaintRecord> wrapper = new LambdaQueryWrapper<>();
 
         if (status != null) {
@@ -62,9 +70,26 @@ public class MaintRecordServiceImpl extends ServiceImpl<MaintRecordMapper, Maint
         }
 
         wrapper.eq(MaintRecord::getDeleted, 0)
-                .orderByDesc(MaintRecord::getCreatedAt);
+                .orderByDesc(MaintRecord::getId);
 
-        return page(page, wrapper);
+        PageHelper.startPage(pageNum, pageSize);
+        List<MaintRecord> list = maintRecordMapper.selectList(wrapper);
+
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public List<MaintRecord> getMaintRecords(Integer status) {
+        LambdaQueryWrapper<MaintRecord> wrapper = new LambdaQueryWrapper<>();
+
+        if (status != null) {
+            wrapper.eq(MaintRecord::getStatus, status);
+        }
+
+        wrapper.eq(MaintRecord::getDeleted, 0)
+                .orderByDesc(MaintRecord::getId);
+
+        return list(wrapper);
     }
 
     @Override
@@ -102,14 +127,16 @@ public class MaintRecordServiceImpl extends ServiceImpl<MaintRecordMapper, Maint
     }
 
     @Override
-    public Page<MaintRecord> getMaintHistory(Long userId, int pageNum, int pageSize) {
-        Page<MaintRecord> page = new Page<>(pageNum, pageSize);
+    public PageInfo<MaintRecord> getMaintHistory(Long userId, int pageNum, int pageSize) {
         LambdaQueryWrapper<MaintRecord> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MaintRecord::getUserId, userId)
                 .eq(MaintRecord::getDeleted, 0)
                 .in(MaintRecord::getStatus, 2, 3, 4, 5)
-                .orderByDesc(MaintRecord::getCreatedAt);
+                .orderByDesc(MaintRecord::getId);
 
-        return page(page, wrapper);
+        PageHelper.startPage(pageNum, pageSize);
+        List<MaintRecord> list = maintRecordMapper.selectList(wrapper);
+
+        return new PageInfo<>(list);
     }
 }

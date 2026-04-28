@@ -40,14 +40,10 @@ public class MaintRecordController {
 
     @Operation(summary = "获取维保记录列表")
     @GetMapping("/list")
-    public R<PageInfo<MaintRecord>> getList(
-            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
-            @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer pageSize,
+    public R<List<MaintRecord>> getList(
             @Parameter(description = "状态") @RequestParam(required = false) Integer status) {
-        Page<MaintRecord> page = maintRecordService.getMaintRecords(pageNum, pageSize, status);
-        PageInfo<MaintRecord> pageInfo = new PageInfo<>(page.getRecords());
-        pageInfo.setTotal(page.getTotal());
-        return R.data(pageInfo);
+        List<MaintRecord> list = maintRecordService.getMaintRecords(status);
+        return R.data(list);
     }
 
     @Operation(summary = "获取维保记录详情")
@@ -69,18 +65,5 @@ public class MaintRecordController {
     public R<Boolean> deleteBatch(@RequestBody List<Long> ids) {
         boolean result = maintRecordService.deleteBatchMaintRecords(ids);
         return result ? R.success("删除成功") : R.fail("删除失败");
-    }
-
-    @Operation(summary = "获取维保历史")
-    @GetMapping("/history")
-    @SaCheckLogin
-    public R<PageInfo<MaintRecord>> getHistory(
-            @Parameter(description = "用户ID") @RequestParam Long userId,
-            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
-            @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer pageSize) {
-        Page<MaintRecord> page = maintRecordService.getMaintHistory(userId, pageNum, pageSize);
-        PageInfo<MaintRecord> pageInfo = new PageInfo<>(page.getRecords());
-        pageInfo.setTotal(page.getTotal());
-        return R.data(pageInfo);
     }
 }

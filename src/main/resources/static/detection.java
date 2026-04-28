@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Tag(name = "AI 聊天管理")
 @RestController
@@ -20,18 +19,59 @@ public class AIController {
     @Resource
     private AIService aiService;
 
-    @Operation(summary = "AI 聊天接口（非流式，移动端用）")
+
+
+}
+
+
+
+    @Operation(summary = "AI聊天接口")
     @PostMapping("/chat")
     public R<AIChatResponse> chat(@RequestBody AIChatRequest request) {
-        if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
-            return R.fail("消息内容不能为空");
+            Boolean result = carTrajectoryService.saveCarData(carData);
+            return result ? R.success("获取成功")
         }
 
         AIChatResponse response = aiService.chat(request.getMessage());
         return R.data(response);
     }
 
-    @Operation(summary = "AI 聊天 - 简单 GET 接口（非流式，移动端用）")
+
+
+
+    @Operation(summary = "保存单个小车位置")
+    @PostMapping("/save")
+    public R<Boolean> save(@RequestBody CarData carData){
+        boolean result = carTrajectoryService.saveCarData(carData);
+        return result ? R.success() : R.fail();
+
+
+    }
+
+    @Operation(summary = "获取全部车辆轨迹")
+    @GetMapping("/getData")
+    public R<list> getData(){
+        boolean result = carTajectoryService.getData();
+        return result ? R.success("获取车辆全部路径成功");
+        return result ? R.success("获取全部路径失败");
+    }
+
+
+
+
+
+
+
+    @Operation(summary = "AI 聊天接口")
+    @PostMapping("chat")
+    public R<AIChatResponse chat (@RequestBody AIChatRequest request)> {
+        if( request.getMesage == null || request.getMessage().trim()){
+            return R.fail("消息不能为空")
+    };
+
+
+
+    @Operation(summary = "AI 聊天 - 简单 GET 接口")
     @GetMapping("/chat")
     public R<AIChatResponse> chatGet(@RequestParam String message) {
         if (message == null || message.trim().isEmpty()) {
@@ -40,22 +80,5 @@ public class AIController {
 
         AIChatResponse response = aiService.chat(message);
         return R.data(response);
-    }
-
-    @Operation(summary = "AI 聊天 - 流式输出（PC端用）")
-    @GetMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter chatStream(@RequestParam String message) {
-        if (message == null || message.trim().isEmpty()) {
-            SseEmitter emitter = new SseEmitter();
-            try {
-                emitter.send(SseEmitter.event().data("消息内容不能为空"));
-                emitter.complete();
-            } catch (Exception e) {
-                emitter.completeWithError(e);
-            }
-            return emitter;
-        }
-
-        return aiService.chatStream(message);
     }
 }

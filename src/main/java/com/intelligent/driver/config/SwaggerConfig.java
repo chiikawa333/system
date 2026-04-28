@@ -15,7 +15,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Admin System API")
                         .version("1.0.0")
-                        .description("停车场管理系统 API 文档")
+                        .description("智能驾驶管理系统 API 文档")
                         .contact(new Contact()
                                 .name("chiikawa333")
                                 .email("chiikawa333@email.com")));

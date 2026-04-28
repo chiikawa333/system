@@ -7,6 +7,8 @@ import com.intelligent.driver.responce.ResponseCode;
 import com.intelligent.driver.util.CaptchCache;
 import com.intelligent.driver.util.Captcha;
 import com.intelligent.driver.util.UploadFile;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
+@Tag(name = "通用接口")
 @CrossOrigin
 @RestController
 public class CommonController {
@@ -39,11 +42,8 @@ public class CommonController {
 
     @Resource
     private CaptchCache captchCache;
-// ... existing code ...
 
-
-// ... existing code ...
-
+    @Operation(summary = "获取验证码")
     @GetMapping("/common/getCaptcha")
         public R<Captcha> getCaptcha(){
             String captchText = defaultKaptcha.createText();
@@ -66,8 +66,6 @@ public class CommonController {
         };
 
 
-
-
     /**
      * 上传文件
      *
@@ -76,6 +74,7 @@ public class CommonController {
      * @throws ServletException
      * @throws IOException
      */
+    @Operation(summary = "上传文件")
     @RequestMapping("/common/uploadFile")
     @CrossOrigin
     public R<UploadFile> upload(HttpServletRequest req, HttpServletResponse res, @RequestParam("file") MultipartFile file) throws ServletException, IOException {

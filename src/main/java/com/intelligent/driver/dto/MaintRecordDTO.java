@@ -2,6 +2,9 @@ package com.intelligent.driver.dto;
 
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 public class MaintRecordDTO {
@@ -18,9 +21,9 @@ public class MaintRecordDTO {
 
     private String serviceStationName;
 
-    private String appointmentDate;
+    private LocalDate appointmentDate;
 
-    private String appointmentTime;
+    private LocalTime appointmentTime;
 
     private Long vehicleId;
 
@@ -38,11 +41,11 @@ public class MaintRecordDTO {
 
     private BigDecimal paymentAmount;
 
-    private String paymentTime;
+    private LocalTime paymentTime;
 
-    private String actualRepairTime;
+    private LocalTime actualRepairTime;
 
-    private String completionTime;
+    private LocalDateTime completionTime;
 
     private Long userId;
 }

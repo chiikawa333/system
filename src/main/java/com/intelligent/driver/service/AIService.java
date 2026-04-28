@@ -6,30 +6,48 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intelligent.driver.dto.AIChatResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class AIService {
 
     @Value("${ai.siliconflow.api-key}")
-    private String apiKey;
+    private String siliconflowApiKey;
 
     @Value("${ai.siliconflow.base-url}")
-    private String baseUrl;
+    private String siliconflowBaseUrl;
 
     @Value("${ai.siliconflow.model}")
-    private String model;
+    private String siliconflowModel;
 
     @Value("${ai.siliconflow.max-tokens}")
-    private int maxTokens;
+    private int siliconflowMaxTokens;
 
     @Value("${ai.siliconflow.temperature}")
-    private double temperature;
+    private double siliconflowTemperature;
+
+    @Value("${ai.deepseek.api-key}")
+    private String deepseekApiKey;
+
+    @Value("${ai.deepseek.base-url}")
+    private String deepseekBaseUrl;
+
+    @Value("${ai.deepseek.model}")
+    private String deepseekModel;
+
+    @Value("${ai.deepseek.max-tokens}")
+    private int deepseekMaxTokens;
+
+    @Value("${ai.deepseek.temperature}")
+    private double deepseekTemperature;
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -42,8 +60,18 @@ public class AIService {
     }
 
     public AIChatResponse chat(String message) {
+        return chat(message, "siliconflow");
+    }
+
+    public AIChatResponse chat(String message, String provider) {
         try {
-            String requestBody = buildRequestBody(message);
+            String apiKey = "deepseek".equals(provider) ? deepseekApiKey : siliconflowApiKey;
+            String baseUrl = "deepseek".equals(provider) ? deepseekBaseUrl : siliconflowBaseUrl;
+            String model = "deepseek".equals(provider) ? deepseekModel : siliconflowModel;
+            int maxTokens = "deepseek".equals(provider) ? deepseekMaxTokens : siliconflowMaxTokens;
+            double temperature = "deepseek".equals(provider) ? deepseekTemperature : siliconflowTemperature;
+
+            String requestBody = buildRequestBody(message, model, maxTokens, temperature);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/v1/chat/completions"))
@@ -71,21 +99,91 @@ public class AIService {
         }
     }
 
-    private String buildRequestBody(String message) {
-        // 添加系统提示词，让 AI 扮演更生动的角色
-        String systemPrompt = "你是一个智能车载助手，名字叫'小驰'。你性格活泼、幽默、贴心，说话自然流畅，就像用户的朋友。" +
-                "你不会说'作为 AI'、'我无法'这类话，而是积极提供帮助。" +
-                "回答简洁实用，偶尔开个玩笑，但不过分。" +
-                "你了解汽车知识，能给出专业的用车建议。";
+    public SseEmitter chatStream(String message) {
+        return chatStream(message, "deepseek");
+    }
+
+    public SseEmitter chatStream(String message, String provider) {
+        SseEmitter emitter = new SseEmitter(60000L);
         
-        return String.format(
-                "{\"model\":\"%s\",\"messages\":[{\"role\":\"system\",\"content\":\"%s\"},{\"role\":\"user\",\"content\":\"%s\"}],\"max_tokens\":%d,\"temperature\":%.1f}",
-                model,
-                escapeJson(systemPrompt),
-                escapeJson(message),
-                maxTokens,
-                temperature
-        );
+        CompletableFuture.runAsync(() -> {
+            try {
+                String apiKey = "deepseek".equals(provider) ? deepseekApiKey : siliconflowApiKey;
+                String baseUrl = "deepseek".equals(provider) ? deepseekBaseUrl : siliconflowBaseUrl;
+                String model = "deepseek".equals(provider) ? deepseekModel : siliconflowModel;
+                int maxTokens = "deepseek".equals(provider) ? deepseekMaxTokens : siliconflowMaxTokens;
+                double temperature = "deepseek".equals(provider) ? deepseekTemperature : siliconflowTemperature;
+
+                String requestBody = buildRequestBody(message, model, maxTokens, temperature, true);
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(baseUrl + "/v1/chat/completions"))
+                        .timeout(Duration.ofSeconds(60))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", "Bearer " + apiKey)
+                        .header("Accept", "text/event-stream")
+                        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                        .build();
+
+                httpClient.send(request, HttpResponse.BodyHandlers.ofLines()).body().forEach(line -> {
+                    try {
+                        if (line.startsWith("data: ")) {
+                            String data = line.substring(6);
+                            if ("[DONE]".equals(data)) {
+                                emitter.complete();
+                            } else {
+                                JsonNode jsonNode = objectMapper.readTree(data);
+                                String content = jsonNode.path("choices").path(0).path("delta").path("content").asText();
+                                if (!content.isEmpty()) {
+                                    emitter.send(SseEmitter.event().data(content));
+                                }
+                            }
+                        }
+                    } catch (IOException e) {
+                        emitter.completeWithError(e);
+                    }
+                });
+
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        });
+
+        return emitter;
+    }
+
+    private String buildRequestBody(String message, String model, int maxTokens, double temperature) {
+        return buildRequestBody(message, model, maxTokens, temperature, false);
+    }
+
+    private String buildRequestBody(String message, String model, int maxTokens, double temperature, boolean stream) {
+        String systemPrompt = "deepseek".equals(model.split("/")[0]) || model.contains("v4") 
+            ? "你是一个云端管理助手，精通系统运维、数据分析、业务监控等管理工作。" +
+              "你能提供运营建议、数据解读、异常预警等专业指导。" +
+              "回答简洁清晰，逻辑严谨，语气专业且高效。"
+            : "你是一个专业的物流助手，精通仓储管理、运输调度、库存优化等物流业务。" +
+              "你能提供入库出库建议、路径规划、运力调配等专业指导。" +
+              "回答简洁实用，数据准确，语气专业但不失亲切。";
+        
+        if (stream) {
+            return String.format(
+                    "{\"model\":\"%s\",\"messages\":[{\"role\":\"system\",\"content\":\"%s\"},{\"role\":\"user\",\"content\":\"%s\"}],\"max_tokens\":%d,\"temperature\":%.1f,\"stream\":true}",
+                    model,
+                    escapeJson(systemPrompt),
+                    escapeJson(message),
+                    maxTokens,
+                    temperature
+            );
+        } else {
+            return String.format(
+                    "{\"model\":\"%s\",\"messages\":[{\"role\":\"system\",\"content\":\"%s\"},{\"role\":\"user\",\"content\":\"%s\"}],\"max_tokens\":%d,\"temperature\":%.1f}",
+                    model,
+                    escapeJson(systemPrompt),
+                    escapeJson(message),
+                    maxTokens,
+                    temperature
+            );
+        }
     }
 
     private String escapeJson(String text) {

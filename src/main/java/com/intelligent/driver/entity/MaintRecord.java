@@ -3,6 +3,9 @@ package com.intelligent.driver.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @TableName("maint_record")
@@ -27,10 +30,10 @@ public class MaintRecord {
     private String serviceStationName;
 
     @TableField("appointment_date")
-    private String appointmentDate;
+    private LocalDate appointmentDate;
 
     @TableField("appointment_time")
-    private String appointmentTime;
+    private LocalTime appointmentTime;
 
     @TableField("vehicle_id")
     private Long vehicleId;
@@ -57,22 +60,22 @@ public class MaintRecord {
     private BigDecimal paymentAmount;
 
     @TableField("payment_time")
-    private String paymentTime;
+    private LocalTime paymentTime;
 
     @TableField("actual_repair_time")
-    private String actualRepairTime;
+    private LocalTime actualRepairTime;
 
     @TableField("completion_time")
-    private String completionTime;
+    private LocalDateTime completionTime;
 
     @TableField("user_id")
     private Long userId;
 
     @TableField("created_at")
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @TableField("updated_at")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
     @TableField("deleted")
     private Integer deleted;
